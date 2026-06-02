@@ -19,6 +19,7 @@ def test_build_context_includes_source_metadata():
     assert "TCS" in context
     assert "page 52" in context
     assert "Revenue grew 6.3%." in context
+    assert "[annual-report-2025-2026.pdf p.52]" in context
 
 
 def test_build_rag_prompt_returns_system_and_user():

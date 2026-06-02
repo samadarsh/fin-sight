@@ -32,8 +32,9 @@ User → Streamlit UI → FastAPI → Ingestion → Embeddings → ChromaDB
 python3.11 -m venv .venv
 source .venv/bin/activate
 
-# 2. Install dependencies
+# 2. Install dependencies (editable package + dev tools)
 pip install -r requirements.txt
+pip install -e .
 
 # 3. Configure environment
 cp .env.example .env
@@ -86,6 +87,22 @@ streamlit run frontend/app.py
 ```
 
 Opens http://localhost:8501 by default. Set `FINSIGHT_API_URL` if the API is not on port 8000.
+
+The UI uses a **Chat** tab for questions and a **Documents & upload** tab for ingestion (better on narrow screens).
+
+## Citations
+
+Answers include inline `[filename p.N]` citations. Context blocks expose explicit citation tokens; if the LLM omits them, FinSight post-processes the answer to replace `Source N` labels and append a citations line.
+
+## Security notes
+
+For local development, defaults are permissive but safer than open `*`:
+
+- CORS restricted to Streamlit origins (`CORS_ORIGINS` in `.env`)
+- PDF uploads validated by `%PDF` magic bytes and size limit (`MAX_UPLOAD_BYTES`)
+- Rate limiting via `RATE_LIMIT` (default `60/minute`)
+
+For production, add authentication and tighten `CORS_ORIGINS` to your deployed frontend URL.
 
 ## Project Structure
 

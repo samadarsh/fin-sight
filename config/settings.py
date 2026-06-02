@@ -42,6 +42,16 @@ class Settings(BaseSettings):
     embedding_batch_size: int = 10
     embedding_batch_delay: float = 70.0
 
+    # API security / limits
+    max_upload_bytes: int = 100 * 1024 * 1024  # 100 MB
+    cors_origins: str = "http://localhost:8501,http://127.0.0.1:8501"
+    rate_limit: str = "60/minute"
+
+    @property
+    def cors_origin_list(self) -> list[str]:
+        """Parsed CORS allowlist for FastAPI."""
+        return [origin.strip() for origin in self.cors_origins.split(",") if origin.strip()]
+
     model_config = SettingsConfigDict(
         env_file=ROOT_DIR / ".env",
         env_file_encoding="utf-8",

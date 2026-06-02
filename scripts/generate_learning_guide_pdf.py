@@ -8,6 +8,7 @@ import sys
 from pathlib import Path
 
 from fpdf import FPDF
+from fpdf.enums import XPos, YPos
 
 ROOT = Path(__file__).resolve().parent.parent
 SOURCE = ROOT / "docs" / "FinSight-Learning-Guide.md"
@@ -74,9 +75,9 @@ class GuidePDF(FPDF):
         self.ln(45)
         self.set_font(self.family, "B", 24)
         self.set_text_color(25, 70, 130)
-        self.cell(0, 12, "FinSight", align="C", ln=True)
+        self.cell(0, 12, "FinSight", align="C", new_x=XPos.LMARGIN, new_y=YPos.NEXT)
         self.set_font(self.family, "B", 16)
-        self.cell(0, 10, "Complete Learning Guide", align="C", ln=True)
+        self.cell(0, 10, "Complete Learning Guide", align="C", new_x=XPos.LMARGIN, new_y=YPos.NEXT)
         self.ln(10)
         self.set_font(self.family, "", 11)
         self.set_text_color(70, 70, 70)
@@ -101,7 +102,7 @@ class GuidePDF(FPDF):
         self.add_page()
         self.set_font(self.family, "B", 16)
         self.set_text_color(25, 70, 130)
-        self.cell(0, 10, "Table of Contents", ln=True)
+        self.cell(0, 10, "Table of Contents", new_x=XPos.LMARGIN, new_y=YPos.NEXT)
         self.ln(4)
         self.set_font(self.family, "", 10)
         self.set_text_color(40, 40, 40)
@@ -116,6 +117,8 @@ class GuidePDF(FPDF):
             self.ln(6)
 
     def _txt(self, text: str) -> str:
+        # Always normalize Rs. to avoid missing-glyph warnings in PDF fonts.
+        text = text.replace("\u20b9", "Rs.")
         return text if self._unicode else _ascii_safe(text)
 
     def heading(self, level: int, text: str) -> None:
@@ -154,7 +157,14 @@ class GuidePDF(FPDF):
         for line in block.splitlines():
             if self.get_y() > 275:
                 self.add_page()
-            self.cell(0, 4.5, "  " + self._txt(line), ln=True, fill=True)
+            self.cell(
+                0,
+                4.5,
+                "  " + self._txt(line),
+                new_x=XPos.LMARGIN,
+                new_y=YPos.NEXT,
+                fill=True,
+            )
         self.ln(3)
 
     def table(self, rows: list[list[str]]) -> None:

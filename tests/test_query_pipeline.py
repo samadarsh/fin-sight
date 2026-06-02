@@ -87,6 +87,24 @@ def test_answer_question_with_context(store):
     assert "cybersecurity" in result.answer.lower()
     assert len(result.sources) == 1
     assert result.sources[0].page == 10
+    assert "[annual-report-2025-2026.pdf p.10]" in result.answer
+
+
+def test_answer_question_normalizes_missing_citations(store):
+    _seed_store(store)
+
+    class LazyCitationLLM:
+        def generate(self, system: str, user: str) -> str:
+            return "Cybersecurity is a key risk according to Source 1."
+
+    result = answer_question(
+        "What risks did TCS mention?",
+        store=store,
+        llm=LazyCitationLLM(),
+        embedder=FakeEmbedder(),
+        k=1,
+    )
+    assert "[annual-report-2025-2026.pdf p.10]" in result.answer
 
 
 def test_answer_question_respects_company_filter(store):

@@ -19,6 +19,15 @@ _FINANCIAL_KEYWORDS = (
     "capex",
     "roe",
     "roce",
+    "net profit",
+    "pat",
+    "ebit",
+    "operating income",
+    "yoy",
+    "year on year",
+    "year-on-year",
+    "top line",
+    "bottom line",
 )
 
 
@@ -34,6 +43,7 @@ def retrieve(
     settings = get_settings()
     embedder = embedder or get_embedder()
     store = store or ChromaStore()
+    store.ensure_embedding_compatible(embedder)
     k = k or settings.retrieval_top_k
 
     query_embedding = embedder.embed_query(question)
@@ -91,6 +101,7 @@ def retrieve_per_company(
     settings = get_settings()
     embedder = embedder or get_embedder()
     store = store or ChromaStore()
+    store.ensure_embedding_compatible(embedder)
     k_per_company = k_per_company or settings.comparison_k_per_company
 
     results: list[Source] = []

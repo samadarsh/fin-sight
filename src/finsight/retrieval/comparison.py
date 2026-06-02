@@ -1,5 +1,9 @@
 """Helpers for multi-company comparison queries."""
 
+from __future__ import annotations
+
+import re
+
 _COMPARISON_KEYWORDS = (
     "compare",
     "comparison",
@@ -10,7 +14,22 @@ _COMPARISON_KEYWORDS = (
     "difference between",
     "contrast",
     "side by side",
+    "relative to",
+    "compared to",
+    "compared with",
+    "between",
+    "outperform",
+    "underperform",
+    "benchmark against",
 )
+
+# Optional aliases for company names mentioned in questions.
+_COMPANY_ALIASES: dict[str, str] = {
+    "INDIAN OIL": "IOC",
+    "INDIAN OIL CORPORATION": "IOC",
+    "TATA CONSULTANCY SERVICES": "TCS",
+    "TATA CONSULTANCY": "TCS",
+}
 
 
 def indexed_companies(store) -> list[str]:
@@ -18,10 +37,23 @@ def indexed_companies(store) -> list[str]:
     return sorted({doc["company"] for doc in store.list_documents()})
 
 
+def _normalize_company_tokens(question: str) -> str:
+    """Expand known aliases so detection can match indexed tickers."""
+    normalized = question.upper()
+    for alias, ticker in _COMPANY_ALIASES.items():
+        normalized = normalized.replace(alias, ticker)
+    return normalized
+
+
 def detect_companies_in_question(question: str, known_companies: list[str]) -> list[str]:
-    """Find company names mentioned in the question."""
-    q = question.lower()
-    return [company for company in known_companies if company.lower() in q]
+    """Find company names mentioned in the question using word boundaries."""
+    normalized = _normalize_company_tokens(question)
+    detected: list[str] = []
+    for company in known_companies:
+        pattern = rf"\b{re.escape(company.upper())}\b"
+        if re.search(pattern, normalized):
+            detected.append(company)
+    return detected
 
 
 def is_comparison_query(question: str, companies_in_question: list[str]) -> bool:

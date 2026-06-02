@@ -1,8 +1,36 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
 [project]
 name = "finsight"
-version = "0.1.0"
+version = "0.2.0"
 description = "FinSight - a RAG system for financial documents (annual reports, earnings transcripts, filings)."
 requires-python = ">=3.11"
+readme = "README.md"
+dependencies = [
+    "fastapi==0.115.6",
+    "uvicorn[standard]==0.34.0",
+    "python-multipart==0.0.20",
+    "slowapi==0.1.9",
+    "pydantic==2.10.4",
+    "pydantic-settings==2.7.1",
+    "python-dotenv==1.0.1",
+    "pymupdf==1.25.1",
+    "langchain-text-splitters==0.3.4",
+    "google-generativeai==0.8.3",
+    "sentence-transformers==3.3.1",
+    "chromadb==0.5.23",
+    "streamlit==1.41.1",
+    "requests==2.32.3",
+]
+
+[project.optional-dependencies]
+dev = ["pytest==8.3.4", "httpx==0.28.1", "ruff==0.9.4"]
+docs = ["fpdf2==2.8.7"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
 
 [tool.pytest.ini_options]
 pythonpath = ["."]

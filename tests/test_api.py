@@ -61,6 +61,16 @@ def test_upload_rejects_non_pdf(api_client):
     assert response.status_code == 400
 
 
+def test_upload_rejects_invalid_pdf_magic(api_client):
+    client, _, _ = api_client
+    response = client.post(
+        "/upload",
+        files={"file": ("fake.pdf", io.BytesIO(b"NOTPDF-content"), "application/pdf")},
+    )
+    assert response.status_code == 400
+    assert "magic" in response.json()["detail"].lower()
+
+
 def test_list_documents_empty(api_client):
     client, _, _ = api_client
     response = client.get("/documents")

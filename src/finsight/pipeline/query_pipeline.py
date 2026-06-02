@@ -5,6 +5,7 @@ from src.finsight.embeddings.base import EmbeddingProvider
 from src.finsight.llm.base import LLMProvider
 from src.finsight.llm.factory import get_llm
 from src.finsight.models import QueryResponse
+from src.finsight.prompts.citations import normalize_answer_citations
 from src.finsight.prompts.templates import build_comparison_prompt, build_rag_prompt
 from src.finsight.retrieval.comparison import (
     detect_companies_in_question,
@@ -142,4 +143,5 @@ def answer_question(
         system, user = build_rag_prompt(question, sources)
 
     answer = llm.generate(system, user)
+    answer = normalize_answer_citations(answer, sources)
     return QueryResponse(answer=answer, sources=sources)

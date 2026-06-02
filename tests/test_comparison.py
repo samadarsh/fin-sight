@@ -46,6 +46,19 @@ def test_detect_companies_in_question():
     assert found == ["TCS", "IOC"]
 
 
+def test_detect_companies_word_boundaries():
+    found = detect_companies_in_question("ATTCS revenue", ["TCS", "IOC"])
+    assert found == []
+
+
+def test_detect_company_alias():
+    found = detect_companies_in_question(
+        "Compare Indian Oil with TCS",
+        ["TCS", "IOC"],
+    )
+    assert "IOC" in found and "TCS" in found
+
+
 def test_is_comparison_query_keywords():
     assert is_comparison_query("Compare revenue growth", []) is True
     assert is_comparison_query(

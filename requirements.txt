@@ -2,6 +2,7 @@
 fastapi==0.115.6
 uvicorn[standard]==0.34.0
 python-multipart==0.0.20
+slowapi==0.1.9
 
 # Config
 pydantic==2.10.4
@@ -23,7 +24,8 @@ chromadb==0.5.23
 streamlit==1.41.1
 requests==2.32.3
 
-# Testing / lint
+# Testing / lint / docs
 pytest==8.3.4
 httpx==0.28.1
 ruff==0.9.4
+fpdf2==2.8.7

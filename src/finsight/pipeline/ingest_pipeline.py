@@ -125,6 +125,7 @@ def ingest_document(
     source_file = source_file or path.name
     embedder = embedder or get_embedder()
     store = store or ChromaStore()
+    store.ensure_embedding_compatible(embedder, write=True)
 
     logger.info("Loading %s", path)
     raw_pages = load_pdf(path)
