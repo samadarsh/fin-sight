@@ -1,0 +1,29 @@
+# Backend API
+fastapi==0.115.6
+uvicorn[standard]==0.34.0
+python-multipart==0.0.20
+
+# Config
+pydantic==2.10.4
+pydantic-settings==2.7.1
+python-dotenv==1.0.1
+
+# Document processing
+pymupdf==1.25.1
+langchain-text-splitters==0.3.4
+
+# Embeddings + LLM
+google-generativeai==0.8.3
+sentence-transformers==3.3.1
+
+# Vector database
+chromadb==0.5.23
+
+# Frontend
+streamlit==1.41.1
+requests==2.32.3
+
+# Testing / lint
+pytest==8.3.4
+httpx==0.28.1
+ruff==0.9.4
