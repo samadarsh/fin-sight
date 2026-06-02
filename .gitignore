@@ -29,3 +29,7 @@ htmlcov/
 .DS_Store
 .idea/
 .vscode/
+
+# Personal learning guide (local only)
+docs/FinSight-Learning-Guide.md
+docs/FinSight-Learning-Guide.pdf
