@@ -1,4 +1,4 @@
-# FinSight
+# 🔍 FinSight
 
 A Retrieval-Augmented Generation (RAG) system for financial documents — annual
 reports, earnings call transcripts, investor presentations, and SEBI filings.
