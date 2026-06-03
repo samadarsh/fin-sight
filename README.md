@@ -118,9 +118,9 @@ src/finsight/       Core library
   pipeline/          Ingest & query orchestration
 api/                FastAPI app
 frontend/           Streamlit UI
-data/documents/     Uploaded PDFs (gitignored)
+data/documents/     Uploaded PDFs (gitignored; .gitkeep preserves folder on clone)
 storage/chroma/     Vector DB persistence (gitignored)
-evaluation/         RAG evaluation harness
+scripts/            CLI: ingest.py, query.py
 tests/              Unit & integration tests
 ```
 

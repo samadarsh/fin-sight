@@ -30,6 +30,6 @@ htmlcov/
 .idea/
 .vscode/
 
-# Personal learning guide (local only)
-docs/FinSight-Learning-Guide.md
-docs/FinSight-Learning-Guide.pdf
+# Personal learning materials (local only — not part of the app)
+docs/
+scripts/generate_learning_guide_pdf.py
