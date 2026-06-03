@@ -1,4 +1,4 @@
-# 🔍 FinSight
+# 📊 FinSight
 
 A Retrieval-Augmented Generation (RAG) system for financial documents — annual
 reports, earnings call transcripts, investor presentations, and SEBI filings.
@@ -25,7 +25,7 @@ User → Streamlit UI → FastAPI → Ingestion → Embeddings → ChromaDB
 | LLM          | Ollama `llama3:latest` (default) or Gemini |
 | Frontend     | Streamlit                             |
 
-## Setup
+## 🚀 Setup
 
 ```bash
 # 1. Create and activate a virtual environment
@@ -77,7 +77,7 @@ curl -X POST http://127.0.0.1:8000/query \
   -d '{"question":"What risks did TCS mention?","company":"TCS"}'
 ```
 
-## Run the frontend
+## 💬 Run the frontend
 
 Requires the API server to be running (see above).
 
@@ -90,11 +90,11 @@ Opens http://localhost:8501 by default. Set `FINSIGHT_API_URL` if the API is not
 
 The UI uses a **Chat** tab for questions and a **Documents & upload** tab for ingestion (better on narrow screens).
 
-## Citations
+## 📎 Citations
 
 Answers include inline `[filename p.N]` citations. Context blocks expose explicit citation tokens; if the LLM omits them, FinSight post-processes the answer to replace `Source N` labels and append a citations line.
 
-## Security notes
+## 🔒 Security notes
 
 For local development, defaults are permissive but safer than open `*`:
 
@@ -124,7 +124,7 @@ scripts/            CLI: ingest.py, query.py
 tests/              Unit & integration tests
 ```
 
-## Status
+## ✅ Status
 
 - [x] Step 1 — Project skeleton + config
 - [x] Step 2 — Ingestion (loader → cleaner → chunker)
