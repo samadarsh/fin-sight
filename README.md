@@ -123,15 +123,3 @@ storage/chroma/     Vector DB persistence (gitignored)
 scripts/            CLI: ingest.py, query.py
 tests/              Unit & integration tests
 ```
-
-## ✅ Status
-
-- [x] Step 1 — Project skeleton + config
-- [x] Step 2 — Ingestion (loader → cleaner → chunker)
-- [x] Step 3 — Embeddings provider
-- [x] Step 4 — Vector store
-- [x] Step 5 — Ingest pipeline
-- [x] Step 6 — LLM provider + prompts
-- [x] Step 7 — Retrieval + query pipeline
-- [x] Step 8 — FastAPI backend
-- [x] Step 9 — Streamlit frontend
