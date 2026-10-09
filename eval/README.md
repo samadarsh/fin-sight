@@ -39,19 +39,53 @@ python scripts/ingest.py data/documents/SingleAnnualReport202425.pdf --company I
 
 Measured on October 9, 2026 with the default setup: local `BAAI/bge-small-en-v1.5` embeddings,
 the default chunking (3,044 chunks: 1,315 TCS, 1,729 IndianOil); single-company questions are
-filtered by company. Traps excluded, so 43 questions.
+filtered by company, and comparisons retrieve each company separately (4 chunks each), as a full
+run does. Traps excluded, so 43 questions.
 
 | k | Retrieval hit@k | Mean reciprocal rank |
 |---|---|---|
-| 5 | 79.1% (34 / 43) | 0.541 |
-| 10 | 83.7% (36 / 43) | 0.547 |
+| 5 | 83.7% (36 / 43) | 0.605 |
+| 10 | 88.4% (38 / 43) | 0.611 |
 
 Every miss was checked: none of its retrieved chunks contained the answer. Most misses
 are on infographic highlight pages (TCS p.5, p.23) and dense number tables (TCS p.69, the
 regional revenue split), where embedding-only search struggles; keyword (hybrid) search or
 table-aware chunking are the obvious next experiments.
 
-The full run (citations, fact match, refusals) needs an LLM and hasn't been run yet.
+### Full run: Llama 3 (Ollama)
+
+Run on October 10, 2026 with Llama 3 (8B) through Ollama, the same embeddings and k = 5. The
+answers were then re-scored with `scripts/rescore.py` after the question set was corrected (see
+below).
+
+| Metric | Result |
+|---|---|
+| Questions | 46 |
+| Retrieval hit@5 | 83.7% |
+| Citation accuracy | 74.4% |
+| Fact match (43 questions) | 67.4% |
+| Refusal accuracy (3 unanswerable questions) | 100% |
+| Answerable questions it declined | 10 |
+| Median latency | 7.4 s |
+
+Read by hand against the reports, 26 of the 43 answers are fully correct, 4 partly correct
+(right figure with a wrong detail or a missing part), 9 decline and 4 are wrong. Of the 9
+declines, 5 are retrieval misses and 4 had the answer in context; a larger model should recover
+those. The 4 wrong answers: a figure from the wrong passage (TCS's 109 countries is CodeVita, not
+its footprint), a chairman question answered without a name, a revenue comparison that quotes
+both figures correctly and then calls the smaller one higher, and a workforce comparison built
+on the wrong figure. Fact match counts the revenue comparison, so the automated figure is a
+little generous.
+
+The first scoring of this run (60.5% fact match, 65.1% citation accuracy) undercounted: some
+answers were right but came from a page or figure the question set didn't list yet, such as
+TCS's 617,437 employees (p.108) and IndianOil's consolidated revenue and profit (p.115). Those
+were added to `build_questions.py`, and the saved answers re-scored without asking the LLM again.
+
+Two caveats when comparing runs: retrieval is re-run on re-scoring, and a different machine can
+order near-tied chunks slightly differently (here 4 questions moved by one or two ranks; the
+number of hits was unchanged). And Gemini's free tier hit its daily limit after 10 questions, so
+use Ollama or a paid key for a full run.
 
 ## Writing your own questions
 
@@ -89,6 +123,13 @@ python scripts/evaluate.py eval/questions.jsonl                    # full run wi
 ```
 
 Each run saves per-question results, a summary and a Markdown table in `eval/results/`.
+
+After changing the question set, re-score a saved full run instead of paying for the LLM again.
+It keeps the saved answers, re-runs retrieval and writes `*-rescored-*` files next to the run:
+
+```bash
+python scripts/rescore.py eval/results/<stamp>-full-results.jsonl eval/questions.jsonl
+```
 
 ## What the numbers mean
 

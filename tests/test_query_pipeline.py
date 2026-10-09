@@ -3,7 +3,7 @@
 import pytest
 
 from src.finsight.models import Chunk, ChunkMetadata, QueryResponse
-from src.finsight.pipeline.query_pipeline import answer_question
+from src.finsight.pipeline.query_pipeline import answer_question, retrieve_context
 from src.finsight.vectorstore.chroma_store import ChromaStore
 
 
@@ -183,3 +183,50 @@ def test_answer_question_comparison_mode(store):
     )
     assert "Comparison summary" in result.answer
     assert {source.company for source in result.sources} == {"TCS", "IOC"}
+
+
+def _seed_two_companies(store: ChromaStore) -> None:
+    store.add_chunks(
+        [
+            Chunk(
+                text="TCS revenue grew 4.6% in FY 2026.",
+                metadata=ChunkMetadata(
+                    company="TCS",
+                    doc_type="annual_report",
+                    page=58,
+                    source_file="tcs.pdf",
+                    chunk_id="tcs-rev",
+                ),
+            ),
+            Chunk(
+                text="IOC revenue from operations was 845513 crore.",
+                metadata=ChunkMetadata(
+                    company="IOC",
+                    doc_type="annual_report",
+                    page=113,
+                    source_file="ioc.pdf",
+                    chunk_id="ioc-rev",
+                ),
+            ),
+        ],
+        [[1.0, 0.0], [0.0, 1.0]],
+    )
+
+
+def test_retrieve_context_matches_answer_question_in_comparison_mode(store):
+    _seed_two_companies(store)
+    kwargs = dict(compare=True, companies=["TCS", "IOC"], store=store, embedder=FakeEmbedder())
+    sources = retrieve_context("Compare revenue", k_per_company=1, **kwargs)
+    answered = answer_question("Compare revenue", k_per_company=1, llm=FakeLLM(), **kwargs)
+    assert {s.company for s in sources} == {"TCS", "IOC"}
+    assert [(s.source_file, s.page) for s in sources] == [
+        (s.source_file, s.page) for s in answered.sources
+    ]
+
+
+def test_retrieve_context_standard_mode_respects_filter(store):
+    _seed_two_companies(store)
+    sources = retrieve_context(
+        "What was revenue?", filters={"company": "IOC"}, store=store, embedder=FakeEmbedder(), k=2
+    )
+    assert sources and all(s.company == "IOC" for s in sources)

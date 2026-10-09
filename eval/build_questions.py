@@ -96,7 +96,7 @@ Q = [
         "tcs-ai-revenue",
         TCS,
         "What is TCS's annualised AI revenue?",
-        r"Annualised AI Revenue[^.]{0,60}\$2\.3 billion|2\.3 billion annualised AI revenue",
+        r"Annualised AI Revenue[^.]{0,60}\$2\.3 billion|2\.3 billion annualised AI revenue|annualised revenues of US\$ 2\.3 billion in AI",
         ["2.3"],
     ),
     (
@@ -110,8 +110,8 @@ Q = [
         "tcs-workforce",
         TCS,
         "Roughly how many employees does TCS have?",
-        r"workforce of over 580,000",
-        [["580000", "5.8 lakh", "580k"]],
+        r"workforce of over 580,000|Total employees \(D \+ E\) 6,?17,?437",
+        [["580000", "5.8 lakh", "580k", "617437", "6.17 lakh"]],
     ),
     (
         "tcs-countries",
@@ -237,7 +237,7 @@ Q = [
         "ioc-capacity-target",
         IOC,
         "To what capacity does IndianOil plan to expand its refining, and by when?",
-        r"98\.4 ?MMTPA",
+        r"98\.4 ?MMTPA|98\.4 Million metric tonnes per annum",
         ["98.4"],
     ),
     (
@@ -287,7 +287,7 @@ Q = [
         "ioc-net-zero",
         IOC,
         "By what year does IndianOil target net-zero operational emissions?",
-        r"Net-Zero operational emissions by 2046",
+        r"Net-Zero operational emissions( \(Scope 1 and 2\))? by 2046",
         ["2046"],
     ),
     (
@@ -317,20 +317,28 @@ COMPARE = [
     (
         "cmp-revenue",
         "Compare the revenue from operations of TCS in FY 2026 and IndianOil in 2024-25.",
-        [(TCS_FILE, r"2,67,021|267,021"), (IOC_FILE, r"845,?513")],
-        ["267021", "845513"],
+        # IndianOil reports standalone (8,45,513) and consolidated (8,59,363) revenue; either is right.
+        [
+            (TCS_FILE, r"2,67,021|267,021"),
+            (IOC_FILE, r"845,?513|Revenue from Operations[^.]{0,80}859363"),
+        ],
+        ["267021", ["845513", "859363"]],
     ),
     (
         "cmp-profit",
         "Which earned more profit after tax: TCS in FY 2026 or IndianOil in 2024-25?",
-        [(TCS_FILE, r"52,820"), (IOC_FILE, r"12,?962")],
-        ["52820", "12962"],
+        # Standalone (12,962) or consolidated (13,789) profit after tax.
+        [(TCS_FILE, r"52,820"), (IOC_FILE, r"12,?962|Profit After Tax[^.]{0,20}13789")],
+        ["52820", ["12962", "13789"]],
     ),
     (
         "cmp-workforce",
         "Compare the workforce size of TCS and IndianOil.",
-        [(TCS_FILE, r"workforce of over 580,000"), (IOC_FILE, r"29,941")],
-        [["580000", "5.8 lakh", "580k"], "29941"],
+        [
+            (TCS_FILE, r"workforce of over 580,000|Total employees \(D \+ E\) 6,?17,?437"),
+            (IOC_FILE, r"29,941"),
+        ],
+        [["580000", "5.8 lakh", "580k", "617437", "6.17 lakh"], "29941"],
     ),
 ]
 
