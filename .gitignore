@@ -33,3 +33,6 @@ htmlcov/
 # Personal learning materials (local only — not part of the app)
 docs/
 scripts/generate_learning_guide_pdf.py
+
+# Evaluation runs (commit a report deliberately if you want to keep one)
+eval/results/

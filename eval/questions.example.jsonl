@@ -1,0 +1,8 @@
+# EXAMPLES ONLY: the pages and figures below are placeholders, not real answers.
+# Copy this file to eval/questions.jsonl and write your own questions from PDFs you have ingested.
+# One JSON object per line. Fields: id, question, source_file, pages (where the answer is),
+# answer_contains (key facts; a list inside means "any one of these"), and optional company,
+# compare + companies for comparison questions.
+{"id": "tcs-revenue", "question": "What was TCS's revenue from operations in FY2025-26?", "company": "TCS", "source_file": "annual-report-2025-2026.pdf", "pages": [58], "answer_contains": [["2,55,324", "255324"]]}
+{"id": "tcs-risk-cyber", "question": "What cybersecurity risks does TCS highlight?", "company": "TCS", "source_file": "annual-report-2025-2026.pdf", "pages": [10, 11], "answer_contains": ["cyber"]}
+{"id": "tcs-vs-ioc-margin", "question": "Compare the operating margins of TCS and IOC.", "compare": true, "companies": ["TCS", "IOC"], "source_file": "annual-report-2025-2026.pdf", "pages": [58]}

@@ -104,6 +104,21 @@ For local development, defaults are permissive but safer than open `*`:
 
 For production, add authentication and tighten `CORS_ORIGINS` to your deployed frontend URL.
 
+## 📏 Evaluation
+
+`scripts/evaluate.py` scores FinSight on a question set with known answer pages: retrieval
+hit@k, citation accuracy, fact match, refusals and latency. `eval/questions.jsonl` has 46
+questions written from the TCS 2025-26 and IndianOil 2024-25 annual reports; with the default
+local embeddings, retrieval finds an answer page in the top 5 for 79.1% of them (k=10: 83.7%).
+Run it with or without the LLM:
+
+```bash
+python scripts/evaluate.py eval/questions.jsonl --retrieval-only   # free: retrieval only
+python scripts/evaluate.py eval/questions.jsonl                    # full run
+```
+
+See [`eval/README.md`](eval/README.md) for the question format and what each number means.
+
 ## Project Structure
 
 ```
@@ -116,10 +131,12 @@ src/finsight/       Core library
   llm/               LLM providers
   prompts/           Prompt templates
   pipeline/          Ingest & query orchestration
+  evaluation.py      Scoring for scripts/evaluate.py
 api/                FastAPI app
 frontend/           Streamlit UI
 data/documents/     Uploaded PDFs (gitignored; .gitkeep preserves folder on clone)
 storage/chroma/     Vector DB persistence (gitignored)
-scripts/            CLI: ingest.py, query.py
+scripts/            CLI: ingest.py, query.py, evaluate.py
+eval/               Evaluation guide and question template (results gitignored)
 tests/              Unit & integration tests
 ```
