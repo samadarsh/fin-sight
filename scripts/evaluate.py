@@ -92,11 +92,18 @@ def main() -> int:
         result = score(item, sources, answer, time.perf_counter() - started, error)
         results.append(result)
 
-        marks = "hit " if result.retrieval_hit else "MISS"
-        if result.citation_correct is not None:
-            marks += "  cite ok" if result.citation_correct else "  cite WRONG"
-        if result.facts_total and answer is not None:
-            marks += f"  facts {result.facts_found}/{result.facts_total}"
+        if item.unanswerable:
+            marks = "trap"
+            if result.refused is not None:
+                marks += "  declined ok" if result.refused else "  ANSWERED (should decline)"
+        else:
+            marks = "hit " if result.retrieval_hit else "MISS"
+            if result.citation_correct is not None:
+                marks += "  cite ok" if result.citation_correct else "  cite WRONG"
+            if result.facts_total and answer is not None:
+                marks += f"  facts {result.facts_found}/{result.facts_total}"
+            if result.refused:
+                marks += "  declined"
         print(f"[{i:>3}/{len(items)}] {marks:<32} {item.id}" + (f"  ({error})" if error else ""))
 
     if not results:

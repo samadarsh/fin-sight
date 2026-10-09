@@ -11,6 +11,7 @@ from src.finsight.evaluation import (
     facts_found,
     first_hit_rank,
     load_items,
+    refused,
     report_markdown,
     score,
     summarize,
@@ -27,8 +28,7 @@ def _src(page: int, file: str = "ar-2026.pdf") -> Source:
 ITEM = EvalItem(
     id="rev",
     question="What was revenue?",
-    source_file="ar-2026.pdf",
-    pages=[58, 59],
+    expected=[("ar-2026.pdf", [58, 59])],
     answer_contains=[["2,55,324", "255324"], "crore"],
 )
 
@@ -98,7 +98,7 @@ def test_load_items_skips_comments_and_reports_bad_lines(tmp_path):
         encoding="utf-8",
     )
     items = load_items(good)
-    assert items[0].id == "q3" and items[0].pages == [3]
+    assert items[0].id == "q3" and items[0].expected == [("a.pdf", [3])]
 
     bad = tmp_path / "bad.jsonl"
     bad.write_text(json.dumps({"question": "Q?"}) + "\n", encoding="utf-8")
@@ -109,3 +109,63 @@ def test_load_items_skips_comments_and_reports_bad_lines(tmp_path):
 def test_example_file_parses():
     items = load_items(__import__("pathlib").Path("eval/questions.example.jsonl"))
     assert len(items) == 3
+
+
+COMPARE = EvalItem(
+    id="cmp",
+    question="Compare revenue of TCS and IOC.",
+    expected=[("tcs.pdf", [58]), ("ioc.pdf", [109])],
+)
+TRAP = EvalItem(id="trap", question="What will revenue be in 2030?", unanswerable=True)
+
+
+def test_comparison_accepts_either_file():
+    assert first_hit_rank(COMPARE, [_src(1), _src(109, "ioc.pdf")]) == 2
+    assert citation_correct(COMPARE, "TCS led [tcs.pdf p.58].")
+    assert not citation_correct(COMPARE, "TCS led [tcs.pdf p.109].")
+
+
+def test_refusal_detection():
+    assert refused("I don't have enough information in the provided documents to answer this.")
+    assert refused("The report does not mention a 2030 forecast.")
+    assert not refused("Revenue was 2,67,021 crore [tcs.pdf p.58].")
+
+
+def test_trap_scoring_and_summary():
+    declined = score(TRAP, [_src(5)], "I don't have enough information to answer this.", 1.0)
+    guessed = score(TRAP, [_src(5)], "Revenue will be 4 lakh crore.", 1.0)
+    assert declined.retrieval_hit is None and declined.citation_correct is None
+    assert declined.refused and not guessed.refused
+    cautious = score(ITEM, [_src(58)], "That is not mentioned in the documents.", 1.0)
+    summary = summarize([declined, guessed, cautious], k=5)
+    assert summary["refusal_accuracy"] == 50.0 and summary["refusal_questions"] == 2
+    assert summary["false_refusals"] == 1
+    assert summary["retrieval_hit_at_k"] == 100.0  # traps don't count toward retrieval
+    assert "Refusal accuracy (2 unanswerable questions) | 50.0%" in report_markdown(
+        summary, label="x"
+    )
+
+
+def test_load_items_expected_list_and_unanswerable(tmp_path):
+    path = tmp_path / "q.jsonl"
+    path.write_text(
+        json.dumps(
+            {
+                "question": "C?",
+                "expected": [
+                    {"source_file": "a.pdf", "pages": [1]},
+                    {"source_file": "b.pdf", "pages": [2]},
+                ],
+            }
+        )
+        + "\n"
+        + json.dumps({"question": "T?", "unanswerable": True})
+        + "\n",
+        encoding="utf-8",
+    )
+    cmp, trap = load_items(path)
+    assert cmp.expected == [("a.pdf", [1]), ("b.pdf", [2])]
+    assert trap.unanswerable and trap.expected == []
+    path.write_text(json.dumps({"question": "No pages?"}) + "\n", encoding="utf-8")
+    with pytest.raises(ValueError, match="q.jsonl:1"):
+        load_items(path)
