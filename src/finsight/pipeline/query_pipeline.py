@@ -4,7 +4,7 @@ from config.settings import get_settings
 from src.finsight.embeddings.base import EmbeddingProvider
 from src.finsight.llm.base import LLMProvider
 from src.finsight.llm.factory import get_llm
-from src.finsight.models import QueryResponse
+from src.finsight.models import QueryResponse, Source
 from src.finsight.prompts.citations import normalize_answer_citations
 from src.finsight.prompts.templates import build_comparison_prompt, build_rag_prompt
 from src.finsight.retrieval.comparison import (
@@ -59,6 +59,33 @@ def preview_query_mode(
     if filters and filters.get("company"):
         return f"standard (filter: {filters['company']})"
     return "standard"
+
+
+def retrieve_context(
+    question: str,
+    *,
+    k: int | None = None,
+    k_per_company: int | None = None,
+    filters: dict | None = None,
+    compare: bool | None = None,
+    companies: list[str] | None = None,
+    embedder: EmbeddingProvider | None = None,
+    store: ChromaStore | None = None,
+) -> list[Source]:
+    """The chunks ``answer_question`` would put in front of the LLM, without calling it.
+
+    Used by the evaluation's retrieval-only mode so it scores the same retrieval a full run does.
+    """
+    store = store or ChromaStore()
+    if _should_compare(question, store, compare=compare, companies=companies, filters=filters):
+        resolved = resolve_comparison_companies(question, store, companies)
+        if len(resolved) < 2:
+            return []
+        return retrieve_per_company(
+            question, resolved, k_per_company=k_per_company, embedder=embedder, store=store
+        )
+    k = k or get_settings().retrieval_top_k
+    return retrieve(question, k=k, filters=filters, embedder=embedder, store=store)
 
 
 def answer_question(

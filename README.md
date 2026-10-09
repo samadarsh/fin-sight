@@ -109,8 +109,10 @@ For production, add authentication and tighten `CORS_ORIGINS` to your deployed f
 `scripts/evaluate.py` scores FinSight on a question set with known answer pages: retrieval
 hit@k, citation accuracy, fact match, refusals and latency. `eval/questions.jsonl` has 46
 questions written from the TCS 2025-26 and IndianOil 2024-25 annual reports; with the default
-local embeddings, retrieval finds an answer page in the top 5 for 79.1% of them (k=10: 83.7%).
-Run it with or without the LLM:
+local embeddings, retrieval finds an answer page in the top 5 for 83.7% of them (k=10: 88.4%).
+With Llama 3 (8B) on Ollama, 74.4% of answers cite a page that holds the answer, 67.4% state
+every key figure, and all 3 questions the reports can't answer are declined. Run it with or
+without the LLM:
 
 ```bash
 python scripts/evaluate.py eval/questions.jsonl --retrieval-only   # free: retrieval only

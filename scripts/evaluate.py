@@ -31,8 +31,7 @@ from src.finsight.evaluation import (  # noqa: E402
     score,
     summarize,
 )
-from src.finsight.pipeline.query_pipeline import answer_question  # noqa: E402
-from src.finsight.retrieval.retriever import retrieve  # noqa: E402
+from src.finsight.pipeline.query_pipeline import answer_question, retrieve_context  # noqa: E402
 from src.finsight.vectorstore.chroma_store import ChromaStore  # noqa: E402
 
 
@@ -72,7 +71,14 @@ def main() -> int:
         sources, answer, error = [], None, None
         try:
             if args.retrieval_only:
-                sources = retrieve(item.question, k=k, filters=filters, store=store)
+                sources = retrieve_context(
+                    item.question,
+                    k=k,
+                    filters=filters,
+                    compare=item.compare,
+                    companies=item.companies,
+                    store=store,
+                )
             else:
                 response = answer_question(
                     item.question,
